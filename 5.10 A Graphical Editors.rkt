@@ -34,8 +34,6 @@
 
 (define (text/i s) (text s 16 "black"))
 
-(render (make-editor "hello" "world"))
-(render (make-editor "hello " "world"))
 
 ;;; Exercise 84. Design edit. The function consumes two inputs,
 ;;; an editor ed and a KeyEvent ke, and it produces another editor.
@@ -73,20 +71,22 @@
     [(string=? "right" ke) (editor-cursor-right ed)]
     [else ed]))
 
-(define (string-remove-last s)
-  (substring s 0 (- (string-length s) 1)))
-(define (string-last s)
-  (substring s (- (string-length s) 1) (string-length s)))
-(define (string-first s)
-  (cond
-    [(string=? "" s) ""]
-    [else (substring s 0 1)]))
-(define (string-rest s)
-  (substring s 1))
+; String -> String
+(define (string-remove-last s) (substring s 0 (- (string-length s) 1)))
+(define (string-last s) (substring s (- (string-length s) 1) (string-length s)))
+(define (string-first s) (cond [(string=? "" s) ""] [else (substring s 0 1)]))
+(define (string-rest s) (substring s 1))
 
+; Editor -> Editor
+(check-expect (editor-delete (make-editor "" "world"))
+              (make-editor "" "world"))
 (define (editor-delete ed)
-  (make-editor (string-remove-last (editor-pre ed)) (editor-post ed)))
+  (cond
+    [(string=? "" (editor-pre ed)) ed]
+    [else
+     (make-editor (string-remove-last (editor-pre ed)) (editor-post ed))]))
 
+; Editor -> Editor
 (define (editor-insert ke ed)
   (make-editor (string-append (editor-pre ed) ke) (editor-post ed)))
 
@@ -120,3 +120,17 @@
 ;;; Given the pre field of an editor, it launches an interactive editor,
 ;;; using render and edit from the preceding two exercises for the to-draw
 ;;; and on-key clauses, respectively.
+
+(define (run pre)
+  (big-bang (make-editor pre "")
+    [to-draw render]
+    [on-key edit]))
+
+
+;;; Exercise 86. Notice that if you type a lot,
+;;; your editor program does not display all of the text.
+;;; Instead the text is cut off at the right margin.
+;;; Modify your function edit from exercise 84 so that it ignores a keystroke
+;;; if adding it to the end of the pre field would mean the rendered text
+;;; is too wide for your canvas.
+
