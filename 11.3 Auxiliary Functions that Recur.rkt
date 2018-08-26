@@ -252,9 +252,15 @@
   (cond
     [(empty? l) '()]
     [else
-     ; (first l)
-     ; (suffixes (rest l))
-     ; - a
-     ; - (suffixes (list b c)) -> (list (list c) (list b c))
-     ; -> (list (list c) (list b c) (list a b c))
-     '()]))
+     ; (reverse (suff l))
+     (add-to-end (suffixes (rest l)) l)]))
+
+(define (add-to-end l x)
+  (cond
+    [(empty? l) (list x)]
+    [else (cons (first l) (add-to-end (rest l) x))]))
+
+(define (suff l)
+  (cond
+    [(empty? (rest l)) (list l)]
+    [else (cons l (suff (rest l)))]))
